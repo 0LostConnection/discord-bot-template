@@ -91,8 +91,8 @@ export default class PingCommand extends Command {
         super();
         this.setName("ping");
         this.setDescription('Responde com "Pong!"');
-        this.setGuildOnly(false);
-        this.setDisabled(false);
+        this.setGuildOnly(false); // Define que o comando é global (não específico de uma guild)
+        this.setDisabled(false);  // Define que o comando está habilitado
     }
 
     /**
@@ -124,9 +124,9 @@ export default class PongCommand extends Command {
         super();
         this.setName("pong");
         this.setDescription('Responde com "Ping!"');
-        this.setGuildOnly(true);
-        this.setDebug(true);
-        this.setDisabled(false);
+        this.setGuildOnly(true);  // Define que o comando é específico de uma guild
+        this.setDebug(true);      // Define que o comando é para debug
+        this.setDisabled(false);  // Define que o comando está habilitado
     }
 
     /**
