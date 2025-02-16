@@ -1,6 +1,6 @@
 import { Event } from "../core/Event";
 import { DiscordClient } from "../core/DiscordClient";
-import { BaseInteraction } from "discord.js";
+import { CommandInteraction } from "discord.js";
 
 /**
  * Evento que é acionado quando uma interação é criada.
@@ -17,7 +17,7 @@ export default class InteractionCreateEvent extends Event {
     /**
      * Executa o evento quando uma interação é criada.
      * @param {DiscordClient} client - A instância do cliente customizado do Discord.
-     * @param {BaseInteraction} interaction - A interação que foi criada.
+     * @param {CommandInteraction} interaction - A interação que foi criada.
      * @returns {Promise<void>}
      */
     async execute(client, interaction) {
