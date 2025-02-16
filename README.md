@@ -73,6 +73,8 @@ Os comandos são definidos na pasta `src/commands`. Cada comando é uma classe q
 - **Guild**: Comandos que são registrados apenas em uma guild específica, cujo ID é especificado no arquivo `.env` (`GUILD_ID`). Esses comandos são úteis para funcionalidades específicas de uma guild.
 - **Global**: Comandos que são registrados globalmente e estão disponíveis em todas as guilds onde o bot está presente.
 
+> **Aviso**: Se `setGuildOnly` for `true` e `setDebug` for `true`, o comando será registrado nas duas guilds (a guild de debug e a guild específica).
+
 #### Exemplo de Comando `ping` (global)
 
 ```js
