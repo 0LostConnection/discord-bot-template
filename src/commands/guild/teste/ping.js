@@ -13,8 +13,8 @@ export default class PingCommand extends Command {
         super();
         this.setName("ping");
         this.setDescription('Responde com "Pong!"');
-        this.setGuildOnly(false);
-        this.setDebug(true);
+        this.setGuildOnly(true);
+        this.setDebug(false);
         this.setDisabled(false);
     }
 
