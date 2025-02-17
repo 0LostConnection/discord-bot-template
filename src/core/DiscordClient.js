@@ -129,16 +129,15 @@ export class DiscordClient extends Client {
             .filter((command) => command.debug)
             .toJSON();
 
-        if (debugSlashCommandsArray.length) {
-            //console.log("DEBUG: " + debugSlashCommandsArray.length);
-            await putCommands(debugSlashCommandsArray, "DEBUG");
-        }
+        //console.log("DEBUG: " + debugSlashCommandsArray.length);
+        await putCommands(debugSlashCommandsArray, "DEBUG");
 
-        const guildSlashCommandsArray = this.slashCommands
-            .filter((command) => command.guildOnly && !command.debug)
-            .toJSON();
+        // Verifica se os IDs das guildas de debug e normais são diferentes ou se não há comandos de debug antes de registrar comandos de guilda
+        if (process.env.DEBUG_GUILD_ID !== process.env.GUILD_ID || debugSlashCommandsArray.length === 0) {
+            const guildSlashCommandsArray = this.slashCommands
+                .filter((command) => command.guildOnly && !command.debug)
+                .toJSON();
 
-        if (guildSlashCommandsArray.length) {
             //console.log("GUILD: " + guildSlashCommandsArray.length);
             await putCommands(guildSlashCommandsArray, "GUILD");
         }
@@ -147,9 +146,7 @@ export class DiscordClient extends Client {
             .filter((command) => !command.guildOnly && !command.debug)
             .toJSON();
 
-        if (globalSlashCommandsArray.length) {
-            //console.log("GLOBAL: " + globalSlashCommandsArray.length);
-            await putCommands(globalSlashCommandsArray, "CLIENT");
-        }
+        //console.log("GLOBAL: " + globalSlashCommandsArray.length);
+        await putCommands(globalSlashCommandsArray, "CLIENT");
     }
 }
