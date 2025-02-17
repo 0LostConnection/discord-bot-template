@@ -14,7 +14,7 @@ export default class PongCommand extends Command {
         this.setName("pong");
         this.setDescription('Responde com "Ping!"');
         this.setGuildOnly(true);
-        this.setDebug(false);
+        this.setDebug(true);
         this.setDisabled(false);
     }
 

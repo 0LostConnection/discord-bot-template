@@ -130,22 +130,25 @@ export class DiscordClient extends Client {
             .toJSON();
 
         if (debugSlashCommandsArray.length) {
+            //console.log("DEBUG: " + debugSlashCommandsArray.length);
             await putCommands(debugSlashCommandsArray, "DEBUG");
         }
 
         const guildSlashCommandsArray = this.slashCommands
-            .filter((command) => command.guildOnly)
+            .filter((command) => command.guildOnly && !command.debug)
             .toJSON();
 
         if (guildSlashCommandsArray.length) {
+            //console.log("GUILD: " + guildSlashCommandsArray.length);
             await putCommands(guildSlashCommandsArray, "GUILD");
         }
 
         const globalSlashCommandsArray = this.slashCommands
-            .filter((command) => !command.guildOnly)
+            .filter((command) => !command.guildOnly && !command.debug)
             .toJSON();
 
         if (globalSlashCommandsArray.length) {
+            //console.log("GLOBAL: " + globalSlashCommandsArray.length);
             await putCommands(globalSlashCommandsArray, "CLIENT");
         }
     }
