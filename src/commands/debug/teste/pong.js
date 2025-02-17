@@ -1,5 +1,5 @@
 import { CommandInteraction } from "discord.js";
-import { Command } from "../../../core/Command";
+import { Command } from "@core/Command";
 
 /**
  * Comando que responde com "Ping!".
