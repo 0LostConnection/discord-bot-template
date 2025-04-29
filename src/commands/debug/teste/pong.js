@@ -13,7 +13,6 @@ export default class PongCommand extends Command {
         super();
         this.setName("pong");
         this.setDescription('Responde com "Ping!"');
-        this.setGuildOnly(true);
         this.setDebug(true);
         this.setDisabled(false);
     }
