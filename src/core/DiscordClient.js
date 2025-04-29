@@ -98,55 +98,94 @@ export class DiscordClient extends Client {
          * Função auxiliar para registrar comandos.
          * @async
          * @param {Array<Object>} commands - Os comandos a serem registrados.
-         * @param {string} route - A rota para registrar os comandos (DEBUG, GUILD ou CLIENT).
+         * @param {string} route - A rota para registrar os comandos (DEBUG ou CLIENT).
+         * @param {string|null} guildId - ID opcional da guild para registrar comandos.
          * @returns {Promise<void>}
          */
-        async function putCommands(commands, route) {
+        async function putCommands(commands, route, guildId) {
+            if (commands.length === 0) return;
+
             const rest = new REST({ version: "10" }).setToken(
                 process.env.CLIENT_TOKEN,
             );
 
-            const validRoutes = {
-                DEBUG: Routes.applicationGuildCommands(
+            let routePath;
+
+            if (route === "DEBUG") {
+                routePath = Routes.applicationGuildCommands(
                     process.env.CLIENT_ID,
                     process.env.DEBUG_GUILD_ID,
-                ),
-                GUILD: Routes.applicationGuildCommands(
+                );
+            } else if (route === "GUILD") {
+                routePath = Routes.applicationGuildCommands(
                     process.env.CLIENT_ID,
-                    process.env.GUILD_ID,
-                ),
-                CLIENT: Routes.applicationCommands(process.env.CLIENT_ID),
-            };
+                    guildId,
+                );
+            } else if (route === "CLIENT") {
+                routePath = Routes.applicationCommands(process.env.CLIENT_ID);
+            }
 
             try {
-                await rest.put(validRoutes[route], { body: commands });
+                await rest.put(routePath, { body: commands });
+                console.log(
+                    `Registrados ${commands.length} comandos para ${route}${guildId ? ` (Guild ID: ${guildId})` : ""}`,
+                );
             } catch (error) {
-                console.error(error);
+                console.error(
+                    `Erro ao registrar comandos para ${route}${guildId ? ` (Guild ID: ${guildId})` : ""}:`,
+                    error,
+                );
             }
         }
 
-        const debugSlashCommandsArray = this.slashCommands
+        // Comandos de debug - enviados para a guild de debug
+        const debugSlashCommands = this.slashCommands
             .filter((command) => command.debug)
             .toJSON();
 
-        //console.log("DEBUG: " + debugSlashCommandsArray.length);
-        await putCommands(debugSlashCommandsArray, "DEBUG");
-
-        // Verifica se os IDs das guildas de debug e normais são diferentes ou se não há comandos de debug antes de registrar comandos de guilda
-        if (process.env.DEBUG_GUILD_ID !== process.env.GUILD_ID || debugSlashCommandsArray.length === 0) {
-            const guildSlashCommandsArray = this.slashCommands
-                .filter((command) => command.guildOnly && !command.debug)
-                .toJSON();
-
-            //console.log("GUILD: " + guildSlashCommandsArray.length);
-            await putCommands(guildSlashCommandsArray, "GUILD");
+        // Verificar se o bot está na guild Debug
+        const debugGuild = this.guilds.cache.get(process.env.DEBUG_GUILD_ID);
+        if (!debugGuild) {
+            console.warn(
+                `Comandos de debug não serão registrados: Bot não está na guild Debug (ID: ${process.env.DEBUG_GUILD_ID})`,
+            );
+        } else {
+            await putCommands(debugSlashCommands, "DEBUG");
         }
 
+        // Comandos específicos de guild - agrupados por guildId
+        const guildSpecificCommands = new Collection();
+
+        // Agrupar comandos por guildId
+        this.slashCommands.forEach((command) => {
+            if (!command.debug && command.guildId) {
+                // Verificar se o bot está na guild
+                const guild = this.guilds.cache.get(command.guildId);
+
+                if (!guild) {
+                    console.warn(
+                        `Comando "${command.name}" não será registrado: Bot não está na guild ${command.guildId}`,
+                    );
+                    return;
+                }
+
+                if (!guildSpecificCommands.has(command.guildId)) {
+                    guildSpecificCommands.set(command.guildId, []);
+                }
+                guildSpecificCommands.get(command.guildId).push(command);
+            }
+        });
+
+        // Registrar comandos para cada guild específica
+        for (const [guildId, commands] of guildSpecificCommands.entries()) {
+            await putCommands(commands, "GUILD", guildId);
+        }
+
+        // Comandos globais - disponíveis em todas as guilds
         const globalSlashCommandsArray = this.slashCommands
-            .filter((command) => !command.guildOnly && !command.debug)
+            .filter((command) => !command.debug && !command.guildId)
             .toJSON();
 
-        //console.log("GLOBAL: " + globalSlashCommandsArray.length);
         await putCommands(globalSlashCommandsArray, "CLIENT");
     }
 }
