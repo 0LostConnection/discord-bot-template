@@ -27,10 +27,9 @@ Este é um template para criar bots do Discord usando a biblioteca `discord.js`.
    # Bot
    CLIENT_TOKEN=seu_token_do_discord
    CLIENT_ID=seu_id_do_cliente
-   
+
    # Comandos
    DEBUG_GUILD_ID=id_da_guild_de_debug
-   GUILD_ID=id_da_guild_especifica
    ```
 
 ## Estrutura do Projeto
@@ -91,7 +90,7 @@ export default class PingCommand extends Command {
         super();
         this.setName("ping");
         this.setDescription('Responde com "Pong!"');
-        this.setGuildOnly(false); // Define que o comando é global (não específico de uma guild)
+        // this.setGuildId("id"); -> Define a guild que o comando será registrado. Se não especificado, o comando será registrado globalmente.
         this.setDisabled(false);  // Define que o comando está habilitado
     }
 
@@ -124,8 +123,7 @@ export default class PongCommand extends Command {
         super();
         this.setName("pong");
         this.setDescription('Responde com "Ping!"');
-        this.setGuildOnly(true);  // Define que o comando é específico de uma guild
-        this.setDebug(true);      // Define que o comando é para debug
+        this.setDebug(true);      // Define que o comando é para debug e será registrador na guild de Debug
         this.setDisabled(false);  // Define que o comando está habilitado
     }
 
