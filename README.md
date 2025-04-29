@@ -42,11 +42,11 @@ discord-bot-template/
 │   │   │   └── teste/
 │   │   │       └── pong.js
 │   │   ├── guild/
-│   │   │   └── teste/
-│   │   │       └── ping.js
+│   │   │   └── info/
+│   │   │       └── userInfo.js
 │   │   ├── global/
 │   │   │   └── teste/
-│   │   │       └── example.js
+│   │   │       └── ping.js
 │   ├── core/
 │   │   ├── Command.js
 │   │   ├── DiscordClient.js
@@ -56,6 +56,7 @@ discord-bot-template/
 │   │   └── ReadyEvent.js
 │   └── index.js
 ├── .env
+├── clearCommands.js
 ├── package.json
 └── README.md
 ```
@@ -69,8 +70,22 @@ Os comandos são definidos na pasta `src/commands`. Cada comando é uma classe q
 #### Categorias de Comandos
 
 - **Debug**: Comandos que são registrados apenas na guild de debug especificada no arquivo `.env` (`DEBUG_GUILD_ID`). Esses comandos são úteis para testes e desenvolvimento.
-- **Guild**: Comandos que são registrados apenas em uma guild específica, cujo ID é especificado no arquivo `.env` (`GUILD_ID`). Esses comandos são úteis para funcionalidades específicas de uma guild.
+- **Guild**: Comandos que são registrados em guilds específicas definidas para cada comando. Esses comandos são úteis para funcionalidades específicas de determinadas guilds.
 - **Global**: Comandos que são registrados globalmente e estão disponíveis em todas as guilds onde o bot está presente.
+
+#### Configuração de Guilds para Comandos
+
+Cada comando pode especificar em quais guilds deve ser registrado usando o método `setGuildId()`:
+
+```js
+// Registrar em uma única guild
+this.setGuildId("123456789012345678");
+
+// Registrar em múltiplas guilds
+this.setGuildId(["123456789012345678", "987654321098765432"]);
+```
+
+Se você não chamar o método `setGuildId()`, o comando será registrado globalmente.
 
 #### Exemplo de Comando `ping` (global)
 
@@ -90,8 +105,8 @@ export default class PingCommand extends Command {
         super();
         this.setName("ping");
         this.setDescription('Responde com "Pong!"');
-        // this.setGuildId("id"); -> Define a guild que o comando será registrado. Se não especificado, o comando será registrado globalmente.
-        this.setDisabled(false);  // Define que o comando está habilitado
+        // Não chamar setGuildId() faz com que o comando seja global
+        this.setDisabled(false);  // Define que o comando está habilitado, por padrão é false, então é obselto deixa-lo no código.
     }
 
     /**
@@ -123,8 +138,8 @@ export default class PongCommand extends Command {
         super();
         this.setName("pong");
         this.setDescription('Responde com "Ping!"');
-        this.setDebug(true);      // Define que o comando é para debug e será registrador na guild de Debug
-        this.setDisabled(false);  // Define que o comando está habilitado
+        this.setDebug(true);      // Define que o comando é para debug e será registrado na guild de Debug
+        this.setDisabled(false);
     }
 
     /**
@@ -134,6 +149,41 @@ export default class PongCommand extends Command {
      */
     execute(client, interaction) {
         interaction.reply("Ping!");
+    }
+}
+```
+
+#### Exemplo de Comando para Múltiplas Guilds
+
+```js
+import { CommandInteraction } from "discord.js";
+import { Command } from "../../../core/Command";
+
+/**
+ * Comando que responde com informações da guild.
+ * @extends {Command}
+ */
+export default class GuildInfoCommand extends Command {
+    /**
+     * Cria uma nova instância do comando GuildInfo.
+     */
+    constructor() {
+        super();
+        this.setName("guildinfo");
+        this.setDescription("Mostra informações sobre a guild atual");
+        // Registra o comando em múltiplas guilds específicas
+        this.setGuildId(["123456789012345678", "987654321098765432"]);
+        this.setDisabled(false);
+    }
+
+    /**
+     * Executa o comando GuildInfo.
+     * @param {DiscordClient} client - A instância do cliente customizado do Discord.
+     * @param {CommandInteraction} interaction - A interação que acionou o comando.
+     */
+    execute(client, interaction) {
+        const guild = interaction.guild;
+        interaction.reply(`Nome da Guild: ${guild.name}\nTotal de membros: ${guild.memberCount}`);
     }
 }
 ```
@@ -183,6 +233,39 @@ Para iniciar o bot, use o seguinte comando:
 ```bash
 bun start
 ```
+
+## Ferramentas Utilitárias
+
+### Limpeza de Comandos
+
+O template inclui uma ferramenta para limpar comandos que estão registrados no Discord. Isso é particularmente útil quando:
+
+- Você remove um comando do seu código, mas ele ainda aparece no Discord
+- Um comando não está mais configurado para uma guild específica, mas continua disponível nela
+- Você deseja reiniciar todos os comandos do seu bot
+
+#### Como Usar
+
+Para limpar comandos globais:
+
+```bash
+bun clearCommands.js global
+```
+
+Para limpar comandos de uma guild específica:
+
+```bash
+bun clearCommands.js guild <GUILD_ID>
+```
+
+Substitua `<GUILD_ID>` pelo ID da guild da qual você deseja remover todos os comandos.
+
+#### Situações de Uso
+
+- **Desenvolvimento**: Durante o desenvolvimento, você pode querer limpar comandos para testar novas versões
+- **Migração**: Ao migrar comandos de uma guild para global ou vice-versa
+- **Manutenção**: Para remover comandos obsoletos que já foram removidos do código mas ainda aparecem para os usuários
+- **Resolução de Problemas**: Quando há discrepância entre os comandos disponíveis e os implementados no código
 
 ## Contribuição
 
