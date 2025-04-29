@@ -170,6 +170,7 @@ dist
 
 # IntelliJ based IDEs
 .idea
+.fleet
 
 # Finder (MacOS) folder config
 .DS_Store
