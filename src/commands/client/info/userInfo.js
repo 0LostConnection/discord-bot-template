@@ -22,8 +22,7 @@ export default class UserInfo extends Command {
         super();
         this.setName("user-info");
         this.setDescription("Informações do usuário.");
-        this.setGuildId("1014555852469964920");
-        this.setDebug(false);
+        this.setDebug(true)
         this.addUserOption((option) =>
             option
                 .setName("usuario")
