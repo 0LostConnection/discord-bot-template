@@ -159,20 +159,23 @@ export class DiscordClient extends Client {
         // Agrupar comandos por guildId
         this.slashCommands.forEach((command) => {
             if (!command.debug && command.guildId) {
-                // Verificar se o bot está na guild
-                const guild = this.guilds.cache.get(command.guildId);
+                // Para cada guildId no array de guildIds do comando
+                for (const guildId of command.guildId) {
+                    // Verificar se o bot está na guild
+                    const guild = this.guilds.cache.get(guildId);
 
-                if (!guild) {
-                    console.warn(
-                        `Comando "${command.name}" não será registrado: Bot não está na guild ${command.guildId}`,
-                    );
-                    return;
-                }
+                    if (!guild) {
+                        console.warn(
+                            `Comando "${command.name}" não será registrado: Bot não está na guild ${guildId}`,
+                        );
+                        continue;
+                    }
 
-                if (!guildSpecificCommands.has(command.guildId)) {
-                    guildSpecificCommands.set(command.guildId, []);
+                    if (!guildSpecificCommands.has(guildId)) {
+                        guildSpecificCommands.set(guildId, []);
+                    }
+                    guildSpecificCommands.get(guildId).push(command);
                 }
-                guildSpecificCommands.get(command.guildId).push(command);
             }
         });
 

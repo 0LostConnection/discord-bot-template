@@ -184,6 +184,41 @@ Para iniciar o bot, use o seguinte comando:
 bun start
 ```
 
+## Ferramentas Utilitárias
+
+### Limpeza de Comandos
+
+O template inclui uma ferramenta para limpar comandos que estão registrados no Discord. Isso é particularmente útil quando:
+
+- Você remove um comando do seu código, mas ele ainda aparece no Discord
+- Um comando não está mais configurado para uma guild específica, mas continua disponível nela
+- Você deseja reiniciar todos os comandos do seu bot
+
+#### Como Usar
+
+Para limpar comandos globais:
+
+```bash
+bun clearCommands.js global
+```
+
+Para limpar comandos de uma guild específica:
+
+```bash
+bun clearCommands.js guild <GUILD_ID>
+```
+
+Substitua `<GUILD_ID>` pelo ID da guild da qual você deseja remover todos os comandos.
+
+#### Situações de Uso
+
+- **Desenvolvimento**: Durante o desenvolvimento, você pode querer limpar comandos para testar novas versões
+- **Migração**: Ao migrar comandos de uma guild para global ou vice-versa
+- **Manutenção**: Para remover comandos obsoletos que já foram removidos do código mas ainda aparecem para os usuários
+- **Resolução de Problemas**: Quando há discrepância entre os comandos disponíveis e os implementados no código
+
+Esta ferramenta ajuda a garantir que apenas os comandos definidos em seu código atual estejam disponíveis para os usuários, mantendo a interface do bot consistente com sua implementação.
+
 ## Contribuição
 
 Contribuições são bem-vindas! Sinta-se à vontade para abrir uma issue ou enviar um pull request.
