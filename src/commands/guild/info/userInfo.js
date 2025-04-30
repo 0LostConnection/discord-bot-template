@@ -2,7 +2,6 @@ import {
     ActionRowBuilder,
     CommandInteraction,
     ContainerBuilder,
-    EmbedBuilder,
     SectionBuilder,
     SeparatorBuilder,
     SeparatorSpacingSize,
@@ -12,6 +11,8 @@ import {
     TextDisplayBuilder,
     ThumbnailBuilder,
 } from "discord.js";
+
+import { DiscordClient } from "@core/DiscordClient";
 import { Command } from "@core/Command";
 /**
  * Comando que responde um informações do usuário.
@@ -22,7 +23,7 @@ export default class UserInfo extends Command {
         super();
         this.setName("user-info");
         this.setDescription("Informações do usuário.");
-        this.setDebug(true)
+        this.setDebug(true);
         this.addUserOption((option) =>
             option
                 .setName("usuario")
@@ -91,7 +92,7 @@ export default class UserInfo extends Command {
 
         // Cria um container para os componentes
         const container = new ContainerBuilder({
-            accent_color: user.accentColor,
+            accent_color: 16711680,
             components: [section, separator, actionRow],
         });
 
