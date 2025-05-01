@@ -185,10 +185,37 @@ export class DiscordClient extends Client {
         }
 
         // Comandos globais - disponíveis em todas as guilds
-        const globalSlashCommandsArray = this.slashCommands
+        const globalSlashCommands = this.slashCommands
             .filter((command) => !command.debug && !command.guildId)
             .toJSON();
 
-        await putCommands(globalSlashCommandsArray, "CLIENT");
+        await putCommands(globalSlashCommands, "CLIENT");
+
+        // Verificar guilds que o bot está mas não tem comandos registrados
+        // Limpar esses comandos enviando um array vazio
+        const rest = new REST({ version: "10" }).setToken(
+            process.env.CLIENT_TOKEN
+        );
+
+        for (const guild of this.guilds.cache.values()) {
+            // Pular guilds que já têm comandos específicos ou a guild de debug
+            if (guildSpecificCommands.has(guild.id) || guild.id === process.env.DEBUG_GUILD_ID) {
+                continue;
+            }
+
+            try {
+                const routePath = Routes.applicationGuildCommands(
+                    process.env.CLIENT_ID,
+                    guild.id
+                );
+                await rest.put(routePath, { body: [] });
+                console.log(`Limpados comandos para guild sem registros específicos (Guild ID: ${guild.id})`);
+            } catch (error) {
+                console.error(
+                    `Erro ao limpar comandos para guild (ID: ${guild.id}):`,
+                    error
+                );
+            }
+        }
     }
 }
