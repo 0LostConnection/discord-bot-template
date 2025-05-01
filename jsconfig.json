@@ -4,7 +4,8 @@
         "paths": {
             "@core/*": ["core/*"],
             "@utils/*": ["utils/*"],
-            "@builders/*": ["builders/*"]
+            "@builders/*": ["builders/*"],
+            "@builders": ["builders"]
         }
     },
     "include": ["src/**/*"]
