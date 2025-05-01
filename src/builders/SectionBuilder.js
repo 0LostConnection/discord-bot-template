@@ -67,134 +67,92 @@ export default class SectionBuilder {
     }
 
     /**
-     * Adiciona um componente TextDisplay à seção.
+     * Adiciona um TextDisplay à seção.
      *
-     * @param {TextDisplayComponent|Array<TextDisplayComponent>} component - Um TextDisplay único ou array deles
+     * @param {string|TextDisplayComponent|TextDisplayBuilder} content - O texto a ser exibido ou um componente TextDisplay/builder
      * @returns {SectionBuilder} Esta instância, para encadeamento de métodos
      * @throws {Error} Se o componente não for do tipo TextDisplay
      *
      * @example
      * ```javascript
-     * section.addComponent(new TextDisplayBuilder("Texto"));
-     * ```
-     */
-    addComponent(component) {
-        if (Array.isArray(component)) {
-            // Verifica se todos os componentes são TextDisplay
-            for (const comp of component) {
-                if (comp.type !== ComponentType.TextDisplay) {
-                    throw new Error(
-                        "Only TextDisplay components can be added to a SectionBuilder",
-                    );
-                }
-            }
-            // Se for um array, adiciona cada componente individualmente
-            this.components.push(...component);
-        } else {
-            // Verifica se é um TextDisplay
-            if (component.type !== ComponentType.TextDisplay) {
-                throw new Error(
-                    "Only TextDisplay components can be added to a SectionBuilder",
-                );
-            }
-            // Se for um único componente, adiciona normalmente
-            this.components.push(component);
-        }
-        return this;
-    }
-
-    /**
-     * Adiciona múltiplos componentes TextDisplay à seção.
-     *
-     * @param {Array<TextDisplayComponent>} components - Array de componentes TextDisplay
-     * @returns {SectionBuilder} Esta instância, para encadeamento de métodos
-     * @throws {Error} Se não for um array ou se algum componente não for do tipo TextDisplay
-     *
-     * @example
-     * ```javascript
-     * section.addComponents([
-     *    new TextDisplayBuilder("Título"),
-     *    new TextDisplayBuilder("Subtítulo")
-     * ]);
-     * ```
-     */
-    addComponents(components) {
-        if (!Array.isArray(components)) {
-            components = [components]; // Transforma em array se não for
-        }
-
-        // Verifica se todos os componentes são TextDisplay
-        for (const component of components) {
-            if (component.type !== ComponentType.TextDisplay) {
-                throw new Error(
-                    "Only TextDisplay components can be added to a SectionBuilder",
-                );
-            }
-        }
-
-        this.components.push(...components);
-        return this;
-    }
-
-    /**
-     * Define o acessório da seção (Thumbnail ou ActionRow).
-     *
-     * @param {Object} accessory - Um componente Thumbnail ou ActionRow
-     * @returns {SectionBuilder} Esta instância, para encadeamento de métodos
-     * @throws {Error} Se o acessório não for do tipo Thumbnail ou ActionRow
-     *
-     * @example
-     * ```javascript
-     * const thumbnail = new ThumbnailBuilder().setURL("https://example.com/image.png");
-     * section.setAccessory(thumbnail);
-     * ```
-     */
-    setAccessory(accessory) {
-        if (
-            accessory.type !== ComponentType.Thumbnail &&
-            accessory.type !== ComponentType.ActionRow
-        ) {
-            throw new Error(
-                "Only Thumbnail or ActionRow components can be added as accessory to a SectionBuilder",
-            );
-        }
-
-        // Se for ActionRow, verificar se contém apenas botões
-        if (accessory.type === ComponentType.ActionRow) {
-            if (!accessory.components || !accessory.components.length) {
-                throw new Error(
-                    "ActionRow must contain at least one Button component",
-                );
-            }
-
-            for (const component of accessory.components) {
-                if (component.type !== ComponentType.Button) {
-                    throw new Error(
-                        "ActionRow in a Section can only contain Button components",
-                    );
-                }
-            }
-        }
-
-        this.accessory = accessory;
-        return this;
-    }
-
-    /**
-     * Adiciona um novo TextDisplay com o conteúdo especificado.
-     * Método de conveniência que cria um TextDisplayBuilder internamente.
-     *
-     * @param {string} content - O texto a ser exibido
-     * @returns {SectionBuilder} Esta instância, para encadeamento de métodos
-     *
-     * @example
-     * ```javascript
+     * // Usando uma string simples
      * section.addTextDisplay("Este é um texto de exemplo");
+     * 
+     * // Usando um builder
+     * section.addTextDisplay(new TextDisplayBuilder("Texto formatado"));
+     * 
+     * // Usando um objeto JSON
+     * section.addTextDisplay({
+     *   type: ComponentType.TextDisplay,
+     *   content: "Texto via objeto"
+     * });
      * ```
      */
     addTextDisplay(content) {
-        const textDisplayComponent = new TextDisplayBuilder(content);
-        this.components.push(textDisplayComponent);
+        let component;
+        
+        // Se for uma string, cria um TextDisplayBuilder
+        if (typeof content === 'string') {
+            component = new TextDisplayBuilder(content);
+        } 
+        // Se for um builder, usa seus dados
+        else if (content.data) {
+            component = content.data;
+        } 
+        // Caso contrário, assume que é um objeto JSON direto
+        else {
+            component = content;
+        }
+        
+        // Verifica se é um TextDisplay
+        if (component.type !== ComponentType.TextDisplay) {
+            throw new Error("Only TextDisplay components can be added to a SectionBuilder");
+        }
+        
+        // Adiciona o componente
+        this.components.push(component);
+        return this;
+    }
+
+    /**
+     * Define o acessório da seção (Thumbnail ou Button).
+     *
+     * @param {Object|ThumbnailBuilder|ButtonBuilder} accessory - Um componente Thumbnail ou Button, ou um objeto JSON com os dados
+     * @returns {SectionBuilder} Esta instância, para encadeamento de métodos
+     * @throws {Error} Se o acessório não for do tipo Thumbnail ou Button
+     *
+     * @example
+     * ```javascript
+     * // Usando um builder
+     * const thumbnail = new ThumbnailBuilder().setURL("https://example.com/image.png");
+     * section.setAccessory(thumbnail);
+     *
+     * // Usando um objeto JSON
+     * section.setAccessory({
+     *   type: ComponentType.Thumbnail,
+     *   url: "https://example.com/image.png"
+     * });
+     * ```
+     */
+    setAccessory(accessory) {
+        // Se for um builder, pegamos os dados do builder
+        if (accessory.data) {
+            this.accessory = accessory.data;
+            return this;
+        }
+
+        // Se for um objeto JSON diretamente
+        if (
+            !accessory.type ||
+            (accessory.type !== ComponentType.Thumbnail &&
+                accessory.type !== ComponentType.Button)
+        ) {
+            throw new Error(
+                "Only Thumbnail or Button components can be added as accessory to a SectionBuilder",
+            );
+        }
+
+        this.accessory = accessory;
         return this;
     }
 
